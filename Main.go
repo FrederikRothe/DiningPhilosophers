@@ -25,10 +25,10 @@ func main() {
 	go Fork(f5)
 
 	p1 := NewPhilosopher("Caspar", f1, f2)
-	p2 := NewPhilosopher("Rasmus", f2, f3)
+	p2 := NewPhilosopher("Nadija", f2, f3)
 	p3 := NewPhilosopher("Freddy", f3, f4)
 	p4 := NewPhilosopher("The-is", f4, f5)
-	p5 := NewPhilosopher("Nadija", f5, f1)
+	p5 := NewPhilosopher("Mikkel", f5, f1)
 
 	go Start(p1)
 	go Start(p2)
@@ -37,6 +37,7 @@ func main() {
 	go Start(p5)
 
 	for {
+		// Every five seconds, the there is made 10 queries, that will print the status of the 10 goroutines.
 		time.Sleep(5000 * time.Millisecond)
 		queries := 10
 		for i := 0; i < queries; i++ {
