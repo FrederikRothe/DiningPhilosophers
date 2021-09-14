@@ -1,9 +1,5 @@
 package main
 
-import (
-	"time"
-)
-
 func main() {
 	f1 := NewFork()
 	f2 := NewFork()
@@ -29,5 +25,6 @@ func main() {
 	go Start(p4)
 	go Start(p5)
 
-	time.Sleep(15000 * time.Millisecond)
+	for {
+	}
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"time"
 )
 
@@ -24,19 +25,49 @@ func Start(p *philosopher) {
 	for {
 		select {
 		case rf := <-p.rightFork.inUse:
+			if rf {
+			} else {
+				select {
+				case lf := <-p.leftFork.inUse:
+					if lf {
+					} else {
+						p.eating = true
+						p.timesEaten++
+						fmt.Printf("%s eating nam nam,  times eaten = %d\n", p.name, p.timesEaten)
+						wait := time.Duration(rand.Intn(500)+300) * time.Millisecond
+						time.Sleep(wait)
+						fmt.Printf("%s stopped eating\n", p.name)
+						p.leftFork.inUse <- false
+					}
+				default:
+				}
+			}
+			p.rightFork.inUse <- false
+		default:
+		}
+	}
+}
+
+func StartOld(p *philosopher) {
+	for {
+		select {
+		case rf := <-p.rightFork.inUse:
 			p.rightFork.waiter.Lock()
 			if !rf {
-				lf := <-p.leftFork.inUse
-				if !lf {
+				select {
+				case lf := <-p.leftFork.inUse:
 					p.leftFork.waiter.Lock()
-					p.eating = true
-					p.timesEaten++
-					fmt.Printf("%s eating nam nam,  times eaten = %d\n", p.name, p.timesEaten)
-					time.Sleep(300 * time.Millisecond)
-					p.leftFork.used <- 1
-					p.rightFork.used <- 1
-					fmt.Printf("%s stopped eating\n", p.name)
-					p.leftFork.waiter.Unlock()
+					if !lf {
+						p.eating = true
+						p.timesEaten++
+						fmt.Printf("%s eating nam nam,  times eaten = %d\n", p.name, p.timesEaten)
+						wait := time.Duration(rand.Intn(500)+300) * time.Millisecond
+						time.Sleep(wait)
+						p.leftFork.used <- 1
+						p.rightFork.used <- 1
+						fmt.Printf("%s stopped eating\n", p.name)
+						p.leftFork.waiter.Unlock()
+					}
 				}
 			} else {
 				fmt.Println("true for some reason")
