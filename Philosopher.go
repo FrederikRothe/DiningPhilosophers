@@ -35,4 +35,3 @@ func Start(p philosopher) {
 		}	
 	}
 }
-
