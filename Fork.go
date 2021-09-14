@@ -2,13 +2,11 @@ package main
 
 import (
 	"fmt"
-	"sync"
 )
 
 var number int
 
 type fork struct {
-	waiter    sync.Mutex
 	timesUsed int
 	used      chan int
 	inUse     chan bool
