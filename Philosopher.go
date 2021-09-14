@@ -1,37 +1,49 @@
 package main
 
-type philosopher struct{
-	eating bool
+import (
+	"fmt"
+	"time"
+)
+
+type philosopher struct {
+	name       string
+	eating     bool
 	timesEaten int
-	leftFork *fork
-	rightFork *fork
+	leftFork   *fork
+	rightFork  *fork
 }
 
-func NewPhilosopher(leftFork *fork, rightFork *fork) *philosopher {
-	p := philosopher{leftFork: leftFork, rightFork: rightFork}
+func NewPhilosopher(name string, leftFork *fork, rightFork *fork) *philosopher {
+	p := philosopher{name: name, leftFork: leftFork, rightFork: rightFork}
 	p.eating = false
 	p.timesEaten = 0
 	return &p
 }
 
-func Start(p philosopher) {
+func Start(p *philosopher) {
 	for {
-		var rf, lf bool
 		select {
-		case rf <- rightFork.output:
-			rightFork.waiter.Lock()
-			select {
-			case lf <- leftFork.output:
-				leftFork.waiter.Lock()
-				p.eating = true
-				p.timesEaten++
-				fmt.Println("Eating nam nam")
-				time.Sleep(300 * time.Millisecond)
-				leftFork.input <- 1
-				rightFork.input <- 1
-				leftFork.waiter.Unlock()
+		case rf := <-p.rightFork.inUse:
+			p.rightFork.waiter.Lock()
+			if !rf {
+				lf := <-p.leftFork.inUse
+				if !lf {
+					p.leftFork.waiter.Lock()
+					p.eating = true
+					p.timesEaten++
+					fmt.Printf("%s eating nam nam,  times eaten = %d\n", p.name, p.timesEaten)
+					time.Sleep(300 * time.Millisecond)
+					p.leftFork.used <- 1
+					p.rightFork.used <- 1
+					fmt.Printf("%s stopped eating\n", p.name)
+					p.leftFork.waiter.Unlock()
+				}
+			} else {
+				fmt.Println("true for some reason")
 			}
-			rightFork.waiter.Unlock()
-		}	
+			p.rightFork.waiter.Unlock()
+		default:
+			fmt.Println("yoo2")
+		}
 	}
 }
