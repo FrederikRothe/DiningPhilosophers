@@ -1,6 +1,17 @@
 package main
 
+import (
+	"fmt"
+	"time"
+)
+
+var queryIn chan string
+var queryOut chan string
+
 func main() {
+	queryIn = make(chan string, 10)
+	queryOut = make(chan string, 10)
+
 	f1 := NewFork()
 	f2 := NewFork()
 	f3 := NewFork()
@@ -26,5 +37,13 @@ func main() {
 	go Start(p5)
 
 	for {
+		time.Sleep(3000 * time.Millisecond)
+		queries := 10
+		for i := 0; i < queries; i++ {
+			queryIn <- "query"
+		}
+		for i := 0; i < queries; i++ {
+			fmt.Println(<-queryOut)
+		}
 	}
 }
