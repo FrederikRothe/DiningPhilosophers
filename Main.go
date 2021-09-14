@@ -37,7 +37,7 @@ func main() {
 	go Start(p5)
 
 	for {
-		time.Sleep(3000 * time.Millisecond)
+		time.Sleep(5000 * time.Millisecond)
 		queries := 10
 		for i := 0; i < queries; i++ {
 			queryIn <- "query"
